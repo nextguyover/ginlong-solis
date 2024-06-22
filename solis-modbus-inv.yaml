@@ -4,6 +4,10 @@
 # ! This file is to be included as a package in an ESPhome definition !
 # ! This file only works with Solis 'INV' type inverters !
 #
+# (C) 2024 nextguyover
+#
+# https://github.com/nextguyover/ginlong-solis
+#
 # (C) 2023 Hajo Noerenberg
 #
 # http://www.noerenberg.de/
@@ -23,96 +27,64 @@
 # with this program. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
 #
 
-number:
-  - platform: modbus_controller
-    modbus_controller_id: modbus_master
-    name: Limit output power
-    disabled_by_default: true # intentionally disabled, remove if you know what you are doing
-    register_type: holding
-    address: 3051 # = 3052 - 1
-    value_type: S_WORD
-    unit_of_measurement: '%'
-    entity_category: config
-    icon: mdi:percent
-    skip_updates: 10
-    mode: box
-    min_value: 0
-    max_value: 110
-    multiply: 100
-
-select:
-  - platform: modbus_controller
-    name: Working Mode
-    disabled_by_default: true # intentionally disabled, remove if you know what you are doing
-    address: 3040 # = 3041 - 1
-    value_type: U_WORD
-    entity_category: config
-    icon: mdi:cog-outline
-    skip_updates: 10
-    optionsmap:
-      "No response mode": 0
-      "Volt-Watt default": 1
-      "Volt-VAr": 2
-      "Fixed power factor": 3
-      "Fix reactive power": 4
-      "Power-PF": 5
-      "Rule21Volt-Watt": 6
+substitutions:
+  low_priority_var_skip_updates: "60"
 
 binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Working status Normal
+    name: Solar Working status Normal
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0001
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Working status Initializing
+    name: Solar Working status Initializing
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0002
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Working status Grid off
+    name: Solar  Working status Grid off
     device_class: problem
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0004
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Working status Fault to stop
+    name: Solar Working status Fault to stop
     device_class: problem
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0008
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Working status Standby
+    name: Solar Working status Standby
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0010
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Working status Derating
+    name: Solar Working status Derating
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0020
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Working status Limitating
+    name: Solar Working status Limitating
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0040
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Working status Grid surge
+    name: Solar Working status Grid surge
     device_class: problem
     register_type: read
     address: 3071 # = 3072 - 1
     bitmask: 0x0100
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Working status Fan fault
+    name: Solar Working status Fan fault
     device_class: problem
     register_type: read
     address: 3071 # = 3072 - 1
@@ -121,7 +93,7 @@ binary_sensor:
 sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Active Power
+    name: Solar Active Power
     device_class: power
     state_class: measurement
     unit_of_measurement: W
@@ -133,7 +105,7 @@ sensor:
         - script.execute: modbus_activity
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Total DC output power
+    name: Solar Total DC output power
     device_class: power
     state_class: measurement
     unit_of_measurement: W
@@ -142,7 +114,7 @@ sensor:
     value_type: U_DWORD
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Total energy
+    name: Solar Total energy
     device_class: energy
     state_class: total_increasing
     unit_of_measurement: kWh
@@ -150,30 +122,30 @@ sensor:
     address: 3008 # = 3009 - 1
     value_type: U_DWORD
     force_new_range: true # workaround to seperate reg 3006: "skip_updates applies for all components in the same range"
-    skip_updates: 10
+    skip_updates: ${low_priority_var_skip_updates}
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Energy this month
+    name: Solar Energy this month
     device_class: energy
     state_class: total_increasing
     unit_of_measurement: kWh
     register_type: read
     address: 3010 # = 3011 - 1
     value_type: U_DWORD
-    skip_updates: 10
+    skip_updates: ${low_priority_var_skip_updates}
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Energy last month
+    name: Solar Energy last month
     device_class: energy
     state_class: total_increasing
     unit_of_measurement: kWh
     register_type: read
     address: 3012 # = 3013 - 1
     value_type: U_DWORD
-    skip_updates: 10
+    skip_updates: ${low_priority_var_skip_updates}
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Energy today
+    name: Solar Energy today
     device_class: energy
     state_class: total_increasing
     unit_of_measurement: kWh
@@ -183,10 +155,10 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-    skip_updates: 10
+    skip_updates: ${low_priority_var_skip_updates}
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Energy last day
+    name: Solar Energy last day
     device_class: energy
     state_class: total_increasing
     unit_of_measurement: kWh
@@ -196,10 +168,10 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-    skip_updates: 10
+    skip_updates: ${low_priority_var_skip_updates}
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: DC voltage 1
+    name: Solar DC voltage 1
     device_class: voltage
     state_class: measurement
     unit_of_measurement: V
@@ -211,7 +183,7 @@ sensor:
       - multiply: 0.1
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: DC current 1
+    name: Solar DC current 1
     device_class: current
     state_class: measurement
     unit_of_measurement: A
@@ -223,7 +195,7 @@ sensor:
       - multiply: 0.1
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: DC voltage 2
+    name: Solar DC voltage 2
     device_class: voltage
     state_class: measurement
     unit_of_measurement: V
@@ -235,7 +207,7 @@ sensor:
       - multiply: 0.1
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: DC current 2
+    name: Solar DC current 2
     device_class: current
     state_class: measurement
     unit_of_measurement: A
@@ -247,7 +219,7 @@ sensor:
       - multiply: 0.1
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: AC voltage
+    name: Solar AC voltage
     device_class: voltage
     state_class: measurement
     unit_of_measurement: V
@@ -259,7 +231,7 @@ sensor:
       - multiply: 0.1
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Inverter temperature
+    name: Solar Inverter temperature
     device_class: temperature
     state_class: measurement
     unit_of_measurement: °C
@@ -271,7 +243,7 @@ sensor:
       - multiply: 0.1
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Grid frequency
+    name: Solar Grid frequency
     device_class: frequency
     state_class: measurement
     unit_of_measurement: Hz
@@ -285,17 +257,17 @@ sensor:
 text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Product model
+    name: Solar Product model
     register_type: read
     address: 2999 # = 3000 - 1
     response_size: 2
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:factory
-    skip_updates: 10
+    skip_updates: ${low_priority_var_skip_updates}
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: DSP software version
+    name: Solar DSP software version
     register_type: read
     address: 3000 # = 3001 - 1
     response_size: 2
@@ -303,27 +275,27 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
-    skip_updates: 10
+    skip_updates: ${low_priority_var_skip_updates}
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: LCD software version
+    name: Solar LCD software version
     register_type: read
     address: 3001 # = 3002 - 1
     response_size: 2
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
-    skip_updates: 10
+    skip_updates: ${low_priority_var_skip_updates}
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Country standard code
+    name: Solar Country standard code
     register_type: read
     address: 3053 # = 3054 - 1
     response_size: 2
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:earth
-    skip_updates: 10
+    skip_updates: ${low_priority_var_skip_updates}
     lambda: |-
       uint16_t value = modbus_controller::word_from_hex_str(x, 0);
       switch (value) {
@@ -335,24 +307,24 @@ text_sensor:
       return x;
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Inverter SN
+    name: Solar Inverter SN
     register_type: read
     address: 3060 # = 3061 - 1
     register_count: 4
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:numeric
-    skip_updates: 10
+    skip_updates: ${low_priority_var_skip_updates}
     lambda: |-
       char serialnumber[4 * 4 + 1];
       for (int j = 0; j < 4; j++) {
-        unsigned int r = esphome::modbus_controller::word_from_hex_str(x, j * 2);;
+        unsigned int r = (static_cast<uint16_t>(data[item->offset + j*2]) << 8) | data[item->offset + j*2 + 1];
         sprintf(serialnumber + (j * 4), "%02x%02x",
           (r & 0x0F) << 4 | (r & 0xF0) >> 4, (r & 0x0F00) >> 4 | (r & 0xF000) >> 12);
       }
       serialnumber[4 * 4] = 0;
       return std::string(serialnumber);
-  - platform: modbus_controller
+  - platform: modbus_controller       # checking/setting inverter RTC didn't work for me. See: https://github.com/hn/ginlong-solis/issues/35
     modbus_controller_id: modbus_master
     id: inverter_rtc
     register_type: holding
@@ -361,21 +333,22 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:clock-digital
-    skip_updates: 10
+    force_new_range: true
+    skip_updates: ${low_priority_var_skip_updates}
     lambda: |-
       time_t i_t;
       struct tm i_tm = { 0 };
-      i_tm.tm_year  = modbus_controller::word_from_hex_str(x, 0*2) + 2000 - 1900;
-      i_tm.tm_mon   = modbus_controller::word_from_hex_str(x, 1*2) - 1;
-      i_tm.tm_mday  = modbus_controller::word_from_hex_str(x, 2*2);
-      i_tm.tm_hour  = modbus_controller::word_from_hex_str(x, 3*2);
-      i_tm.tm_min   = modbus_controller::word_from_hex_str(x, 4*2);
-      i_tm.tm_sec   = modbus_controller::word_from_hex_str(x, 5*2);
+      i_tm.tm_year  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 0]) << 8) | data[item->offset + 1]) + 2000 - 1900;
+      i_tm.tm_mon   = static_cast<int>((static_cast<uint16_t>(data[item->offset + 2]) << 8) | data[item->offset + 3]) - 1;
+      i_tm.tm_mday  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 4]) << 8) | data[item->offset + 5]);
+      i_tm.tm_hour  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 6]) << 8) | data[item->offset + 7]);
+      i_tm.tm_min   = static_cast<int>((static_cast<uint16_t>(data[item->offset + 8]) << 8) | data[item->offset + 9]);
+      i_tm.tm_sec   = static_cast<int>((static_cast<uint16_t>(data[item->offset + 10]) << 8) | data[item->offset + 11]);
       i_tm.tm_isdst = -1;
       i_t = mktime(&i_tm);
       ESP_LOGI("SyncInverterRTC", "Inverter RTC is %02d:%02d:%02d %04d-%02d-%02d",
         i_tm.tm_hour, i_tm.tm_min, i_tm.tm_sec, i_tm.tm_year + 1900, i_tm.tm_mon + 1, i_tm.tm_mday);
-      auto s_espt = id(network_time).now();
+      auto s_espt = id(sntp_time).now();
       if (s_espt.is_valid()) {
         double deviation = difftime(i_t, s_espt.timestamp);
         if (abs(deviation) > 42) {
@@ -393,11 +366,11 @@ text_sensor:
       return {};
   - platform: modbus_controller
     modbus_controller_id: modbus_master
-    name: Inverter type definition
+    name: Solar Inverter type definition
     register_type: read
     address: 35000
     response_size: 2
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
-    skip_updates: 10
+    skip_updates: ${low_priority_var_skip_updates}
