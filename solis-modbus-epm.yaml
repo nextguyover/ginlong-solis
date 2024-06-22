@@ -174,6 +174,7 @@ sensor:
     value_type: U_WORD
     entity_category: diagnostic
     icon: mdi:percent
+    force_new_range: true
     skip_updates: ${low_priority_var_skip_updates}
     accuracy_decimals: 2
     filters:
@@ -187,6 +188,7 @@ sensor:
     value_type: U_WORD
     entity_category: diagnostic
     icon: mdi:current-ac
+    force_new_range: true
     skip_updates: ${low_priority_var_skip_updates}
     filters:
       - multiply: 10
@@ -199,6 +201,7 @@ sensor:
     value_type: S_WORD
     entity_category: diagnostic
     icon: mdi:meter-electric
+    force_new_range: true
     skip_updates: ${low_priority_var_skip_updates}
     filters:
       - multiply: 100
@@ -211,6 +214,7 @@ sensor:
     value_type: U_WORD
     entity_category: diagnostic
     icon: mdi:numeric
+    force_new_range: true
     skip_updates: ${low_priority_var_skip_updates}
 
   - platform: modbus_controller
@@ -283,6 +287,7 @@ text_sensor:
     response_size: 16 # docs state SN max size is 15 digits, 16 here gets full SN
     entity_category: diagnostic
     icon: mdi:numeric
+    force_new_range: true
     skip_updates: ${low_priority_var_skip_updates}
     lambda: |-
       char serialnumber[16 + 1];
@@ -298,6 +303,7 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:clock-digital
+    force_new_range: true
     skip_updates: ${low_priority_var_skip_updates}
     lambda: |-
       time_t i_t;
@@ -338,6 +344,7 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:factory
+    force_new_range: true
     skip_updates: ${low_priority_var_skip_updates}
   - platform: modbus_controller
     modbus_controller_id: modbus_master
@@ -348,6 +355,7 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:factory
+    force_new_range: true
     skip_updates: ${low_priority_var_skip_updates}
   - platform: modbus_controller
     modbus_controller_id: modbus_master
@@ -358,6 +366,7 @@ text_sensor:
     raw_encode: HEXBYTES
     entity_category: diagnostic
     icon: mdi:chip
+    force_new_range: true
     skip_updates: ${low_priority_var_skip_updates}
 
 binary_sensor:
@@ -368,4 +377,5 @@ binary_sensor:
     address: 36025
     bitmask: 0x0001
     entity_category: diagnostic
+    force_new_range: true
     skip_updates: ${low_priority_var_skip_updates}
